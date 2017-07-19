@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'lib/db.php';
+include 'lib/functions.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,14 +27,13 @@ include 'lib/db.php';
 <div class="blog-masthead">
     <div class="container">
         <nav class="blog-nav">
-            <?php
-
-            ?>
-            <a class="blog-nav-item active" href="#">Главная</a>
-            <a class="blog-nav-item" href="#">New features</a>
-            <a class="blog-nav-item" href="#">Press</a>
-            <a class="blog-nav-item" href="#">New hires</a>
-            <a class="blog-nav-item" href="#">About</a>
+            <a class="blog-nav-item <?php echo !isset($_GET['category']) ? 'active' : '' ?>" href="/">Главная</a>
+            <?php foreach (getCategory() as $category): ?>
+                <a class="blog-nav-item <?php echo isset($_GET['category']) && $_GET['category'] == $category['id'] ? 'active' : '' ?>"
+                   href="?category=<?php echo $category['id'] ?>">
+                    <?php echo $category['name'] ?>
+                </a>
+            <?php endforeach; ?>
         </nav>
     </div>
 </div>
@@ -49,71 +49,38 @@ include 'lib/db.php';
 
         <div class="col-sm-8 blog-main">
 
-            <div class="blog-post">
-                <h2 class="blog-post-title">Sample blog post</h2>
-                <p class="blog-post-meta">January 1, 2014 by <a href="#">Mark</a></p>
+            <?php if (!isset($_GET['article'])): ?>
+                <?php foreach (getArticles() as $article): ?>
+                    <div class="blog-post">
+                        <h2 class="blog-post-title"><?php echo $article['title'] ?></h2>
+                        <p class="blog-post-meta">
+                            <?php echo $article['date'] ?>
+                            <a href="#"><?php echo $article['name'] ?></a>
+                        </p>
 
-                <p>This blog post shows a few different types of content that's supported and styled with Bootstrap. Basic typography, images, and code are all supported.</p>
-                <hr>
-                <p>Cum sociis natoque penatibus et magnis <a href="#">dis parturient montes</a>, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>
-                <blockquote>
-                    <p>Curabitur blandit tempus porttitor. <strong>Nullam quis risus eget urna mollis</strong> ornare vel eu leo. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                </blockquote>
-                <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
-                <h2>Heading</h2>
-                <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-                <h3>Sub-heading</h3>
-                <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                <pre><code>Example code block</code></pre>
-                <p>Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa.</p>
-                <h3>Sub-heading</h3>
-                <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-                <ul>
-                    <li>Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</li>
-                    <li>Donec id elit non mi porta gravida at eget metus.</li>
-                    <li>Nulla vitae elit libero, a pharetra augue.</li>
-                </ul>
-                <p>Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.</p>
-                <ol>
-                    <li>Vestibulum id ligula porta felis euismod semper.</li>
-                    <li>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</li>
-                    <li>Maecenas sed diam eget risus varius blandit sit amet non magna.</li>
-                </ol>
-                <p>Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis.</p>
-            </div><!-- /.blog-post -->
+                        <?php echo '<p>', mb_substr(strip_tags($article['text']), 0, 250), '&hellip;</p>' ?>
+                        <a href="/?article=<?php echo $article['id'] ?>" class="btn btn-default">Читать ещё&hellip;</a>
+                    </div><!-- /.blog-post -->
+                <?php endforeach; ?>
 
-            <div class="blog-post">
-                <h2 class="blog-post-title">Another blog post</h2>
-                <p class="blog-post-meta">December 23, 2013 by <a href="#">Jacob</a></p>
+                <nav>
+                    <ul class="pager">
+                        <li><a href="#">Туда</a></li>
+                        <li><a href="#">Сюда</a></li>
+                    </ul>
+                </nav>
+            <?php else: ?>
+                <?php $article = getArticle(); ?>
+                <div class="blog-post">
+                    <h2 class="blog-post-title"><?php echo $article['title'] ?></h2>
+                    <p class="blog-post-meta">
+                        <?php echo $article['date'] ?>
+                        <a href="#"><?php echo $article['name'] ?></a>
+                    </p>
 
-                <p>Cum sociis natoque penatibus et magnis <a href="#">dis parturient montes</a>, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>
-                <blockquote>
-                    <p>Curabitur blandit tempus porttitor. <strong>Nullam quis risus eget urna mollis</strong> ornare vel eu leo. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                </blockquote>
-                <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
-                <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-            </div><!-- /.blog-post -->
-
-            <div class="blog-post">
-                <h2 class="blog-post-title">New feature</h2>
-                <p class="blog-post-meta">December 14, 2013 by <a href="#">Chris</a></p>
-
-                <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-                <ul>
-                    <li>Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</li>
-                    <li>Donec id elit non mi porta gravida at eget metus.</li>
-                    <li>Nulla vitae elit libero, a pharetra augue.</li>
-                </ul>
-                <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
-                <p>Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.</p>
-            </div><!-- /.blog-post -->
-
-            <nav>
-                <ul class="pager">
-                    <li><a href="#">Previous</a></li>
-                    <li><a href="#">Next</a></li>
-                </ul>
-            </nav>
+                    <?php echo $article['text'] ?>
+                </div><!-- /.blog-post -->
+            <?php endif; ?>
 
         </div><!-- /.blog-main -->
 
@@ -123,7 +90,7 @@ include 'lib/db.php';
                 <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
             </div>
             <div class="sidebar-module">
-                <h4>Archives</h4>
+                <h4>Архив</h4>
                 <ol class="list-unstyled">
                     <li><a href="#">March 2014</a></li>
                     <li><a href="#">February 2014</a></li>
